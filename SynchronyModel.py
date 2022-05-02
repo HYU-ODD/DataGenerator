@@ -59,7 +59,7 @@ class SynchronyModel:
         num_of_vehicles = self.cfg["CARLA_CONFIG"]["NUM_OF_VEHICLES"]
         num_of_walkers = self.cfg["CARLA_CONFIG"]["NUM_OF_WALKERS"]
 
-        # 生成车辆actors
+        # vehicle actors
         blueprints = self.world.get_blueprint_library().filter("vehicle.*")
 
         blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 4]
@@ -100,7 +100,7 @@ class SynchronyModel:
                 else:
                     self.actors["non_agents"].append(response.actor_id)
 
-        # 生成行人actors
+        # walker actors
         blueprintsWalkers = self.world.get_blueprint_library().filter("walker.pedestrian.*")
         spawn_points = []
         for i in range(num_of_walkers):
@@ -111,8 +111,11 @@ class SynchronyModel:
                 spawn_points.append(spawn_point)
 
         batch = []
-        for spawn_point in spawn_points:
-            walker_bp = random.choice(blueprintsWalkers)
+        for i, spawn_point in enumerate(spawn_points):
+            if i <= 48:
+                walker_bp = blueprintsWalkers[i]
+            else:
+                walker_bp = random.choice(blueprintsWalkers)
             if walker_bp.has_attribute('is_invincible'):
                 walker_bp.set_attribute('is_invincible', 'false')
             batch.append(carla.command.SpawnActor(walker_bp, spawn_point))
