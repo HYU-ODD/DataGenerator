@@ -8,7 +8,16 @@ import numpy as np
 from config import config_to_trans
 from data_utils import camera_intrinsic, filter_by_distance
 
-sys.path.append("/opt/carla-simulator/PythonAPI/carla/dist/carla-0.9.12-py3.7-linux-x86_64.egg")
+import glob
+import os
+
+try:
+    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+        sys.version_info.major,
+        sys.version_info.minor,
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+except IndexError:
+    pass
 
 import carla
 
@@ -52,6 +61,13 @@ class SynchronyModel:
 
         # 生成车辆actors
         blueprints = self.world.get_blueprint_library().filter("vehicle.*")
+
+        blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 4]
+        blueprints = [x for x in blueprints if not x.id.endswith('isetta')]
+        blueprints = [x for x in blueprints if not x.id.endswith('carlacola')]
+        blueprints = [x for x in blueprints if not x.id.endswith('cybertruck')]
+        blueprints = [x for x in blueprints if not x.id.endswith('t2')]
+
         blueprints = sorted(blueprints, key=lambda bp: bp.id)
         spawn_points = self.world.get_map().get_spawn_points()
         number_of_spawn_points = len(spawn_points)
