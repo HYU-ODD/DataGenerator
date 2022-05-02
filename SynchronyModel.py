@@ -153,7 +153,7 @@ class SynchronyModel:
             destination = self.world.get_random_location_from_navigation()
             self.world.get_actor(con_id).go_to_location(destination)
             # max speed
-            self.world.get_actor(con_id).set_max_speed(10)
+            self.world.get_actor(con_id).set_max_speed(random.randrange(1,10))
 
     def spawn_agent(self):
         vehicle_bp = random.choice(self.world.get_blueprint_library().filter(self.cfg["AGENT_CONFIG"]["BLUEPRINT"]))
