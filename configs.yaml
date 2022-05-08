@@ -1,6 +1,6 @@
 CARLA_CONFIG:
   NUM_OF_VEHICLES: 40
-  NUM_OF_WALKERS: 55
+  NUM_OF_WALKERS: 50
 
 AGENT_CONFIG:
   TRANSFORM: {location: [14.0, 306.4, 0.5], rotation: [0, 0, 0]}
@@ -10,12 +10,12 @@ SENSOR_CONFIG:
   RGB:
     TRANSFORM: {location: [0, 0, 1.6], rotation: [0, 0, 0]}
     BLUEPRINT: sensor.camera.rgb
-    ATTRIBUTE: {image_size_x: 1920, image_size_y: 1080, fov: 90}
+    ATTRIBUTE: {image_size_x: 1280, image_size_y: 720, fov: 90}
 
   DEPTH_RGB:
     TRANSFORM: { location: [ 0, 0, 1.6 ], rotation: [ 0, 0, 0 ] }
     BLUEPRINT: sensor.camera.depth
-    ATTRIBUTE: { image_size_x: 1920, image_size_y: 1080, fov: 90 }
+    ATTRIBUTE: { image_size_x: 1280, image_size_y: 720, fov: 90 }
 
   LIDAR:
     TRANSFORM: { location: [ 0, 0, 1.6 ], rotation: [ 0, 0, 0 ] }
@@ -29,5 +29,5 @@ FILTER_CONFIG:
   MAX_OUT_VERTICES_FOR_RENDER: 5
 
 SAVE_CONFIG:
-  ROOT_PATH: data2
+  ROOT_PATH: data7
   STEP: 10

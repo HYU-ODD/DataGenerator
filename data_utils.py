@@ -4,7 +4,7 @@ import numpy as np
 from numpy.linalg import inv
 
 from config import cfg_from_yaml_file
-from data_descriptor import KittiDescriptor, CarlaDescriptor
+from data_descriptor import KittiDescriptor, CarlaDescriptor, CustomDescriptor
 from image_converter import depth_to_array, to_rgb_array
 import math
 from visual_utils import draw_3d_bounding_box
@@ -42,34 +42,39 @@ def objects_filter(data):
         sensors_data = dataDict["sensor_data"]
         kitti_datapoints = []
         carla_datapoints = []
+        custom_datapoints = []
         rgb_image = to_rgb_array(sensors_data[0])
         image = rgb_image.copy()
         depth_data = sensors_data[1]
 
         data["agents_data"][agent]["visible_environment_objects"] = []
         for obj in environment_objects:
-            kitti_datapoint, carla_datapoint = is_visible_by_bbox(agent, obj, image, depth_data, intrinsic, extrinsic)
+            custom_datapoint, kitti_datapoint, carla_datapoint = is_visible_by_bbox(agent, obj, image, depth_data, intrinsic, extrinsic, 0)
             if kitti_datapoint is not None:
                 data["agents_data"][agent]["visible_environment_objects"].append(obj)
                 kitti_datapoints.append(kitti_datapoint)
                 carla_datapoints.append(carla_datapoint)
+                custom_datapoints.append(custom_datapoint)
 
         data["agents_data"][agent]["visible_actors"] = []
 
         for act in actors:
-            kitti_datapoint, carla_datapoint = is_visible_by_bbox(agent, act, image, depth_data, intrinsic, extrinsic)
+            custom_datapoint, kitti_datapoint, carla_datapoint = is_visible_by_bbox(agent, act, image, depth_data, intrinsic, extrinsic, 1)
             if kitti_datapoint is not None:
                 data["agents_data"][agent]["visible_actors"].append(act)
                 kitti_datapoints.append(kitti_datapoint)
                 carla_datapoints.append(carla_datapoint)
+                custom_datapoints.append(custom_datapoint)
+
 
         data["agents_data"][agent]["rgb_image"] = image
         data["agents_data"][agent]["kitti_datapoints"] = kitti_datapoints
         data["agents_data"][agent]["carla_datapoints"] = carla_datapoints
+        data["agents_data"][agent]["custom_datapoints"] = custom_datapoints
     return data
 
 
-def is_visible_by_bbox(agent, obj, rgb_image, depth_data, intrinsic, extrinsic):
+def is_visible_by_bbox(agent, obj, rgb_image, depth_data, intrinsic, extrinsic, tags=0):
     obj_transform = obj.transform if isinstance(obj, carla.EnvironmentObject) else obj.get_transform()
     obj_bbox = obj.bounding_box
     if isinstance(obj, carla.EnvironmentObject):
@@ -100,6 +105,28 @@ def is_visible_by_bbox(agent, obj, rgb_image, depth_data, intrinsic, extrinsic):
             "{} {} {}".format(obj.get_angular_velocity().x, obj.get_angular_velocity().y, obj.get_angular_velocity().z)
         # draw_3d_bounding_box(rgb_image, vertices_pos2d)
 
+
+        # blueprint.id
+        if tags==0: # obj
+            obj_id = -1
+        else:
+            obj_id = obj.type_id.split(".")
+            if obj_id[0] == "walker":
+                obj_id = int(obj_id[2])
+            else:
+                obj_id = -1
+            # obj_id = int(obj.type_id.split(".")[2])
+
+        custom_data = CustomDescriptor()
+        custom_data.set_bp_id(obj_id)
+        custom_data.set_truncated(truncated)
+        custom_data.set_occlusion(occluded)
+        custom_data.set_bbox(bbox_2d)
+        custom_data.set_3d_object_dimensions(ext)
+        custom_data.set_type(obj_tp)
+        custom_data.set_3d_object_location(midpoint)
+        custom_data.set_rotation_y(rotation_y)
+
         kitti_data = KittiDescriptor()
         kitti_data.set_truncated(truncated)
         kitti_data.set_occlusion(occluded)
@@ -114,8 +141,8 @@ def is_visible_by_bbox(agent, obj, rgb_image, depth_data, intrinsic, extrinsic):
         carla_data.set_velocity(velocity)
         carla_data.set_acceleration(acceleration)
         carla_data.set_angular_velocity(angular_velocity)
-        return kitti_data, carla_data
-    return None, None
+        return custom_data, kitti_data, carla_data
+    return None, None, None
 
 def obj_type(obj):
     if isinstance(obj, carla.EnvironmentObject):
