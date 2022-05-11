@@ -18,7 +18,7 @@ class DataSave:
         """ 生成数据存储的路径"""
         PHASE = "training"
         self.OUTPUT_FOLDER = os.path.join(root_path, PHASE)
-        folders = ['calib', 'image', 'kitti_label', 'carla_label', 'velodyne', 'custom']
+        folders = ['calib', 'image', 'kitti_label', 'carla_label', 'velodyne', 'custom', 'depth']
 
         for folder in folders:
             directory = os.path.join(self.OUTPUT_FOLDER, folder)
@@ -31,6 +31,7 @@ class DataSave:
         self.IMAGE_PATH = os.path.join(self.OUTPUT_FOLDER, 'image/{0:06}.png')
         self.CALIBRATION_PATH = os.path.join(self.OUTPUT_FOLDER, 'calib/{0:06}.txt')
         self.CUSTOM_LABEL_PATH = os.path.join(self.OUTPUT_FOLDER, 'custom/{0:06}.txt')
+        self.DEPTH_PATH = os.path.join(self.OUTPUT_FOLDER, 'depth/{0:06}.png')
 
 
     def _current_captured_frame_num(self):
@@ -62,6 +63,7 @@ class DataSave:
 
         # 어디에 저장할지
         custom_label_fname = self.CUSTOM_LABEL_PATH.format(self.captured_frame_no)
+        depth_fname = self.DEPTH_PATH.format(self.captured_frame_no)
 
         for agent, dt in data["agents_data"].items():
 
@@ -75,4 +77,6 @@ class DataSave:
             save_label_data(custom_label_fname, dt["custom_datapoints"])
             save_calibration_matrices([camera_transform, lidar_transform], calib_filename, dt["intrinsic"])
             save_lidar_data(lidar_fname, dt["sensor_data"][2])
+
+            save_image_data(depth_fname, dt["sensor_data"][1])
         self.captured_frame_no += 1
