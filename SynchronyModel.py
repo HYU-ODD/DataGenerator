@@ -195,7 +195,7 @@ class SynchronyModel:
         ret = {"environment_objects": None, "actors": None, "agents_data": {}}
         self.frame = self.world.tick()
 
-        ret["environment_objects"] = self.world.get_environment_objects(carla.CityObjectLabel.Any)
+        # ret["environment_objects"] = self.world.get_environment_objects(carla.CityObjectLabel.Any)
         ret["actors"] = self.world.get_actors()
         image_width = self.cfg["SENSOR_CONFIG"]["RGB"]["ATTRIBUTE"]["image_size_x"]
         image_height = self.cfg["SENSOR_CONFIG"]["RGB"]["ATTRIBUTE"]["image_size_y"]

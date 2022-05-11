@@ -32,7 +32,7 @@ WINDOW_HEIGHT = cfg["SENSOR_CONFIG"]["DEPTH_RGB"]["ATTRIBUTE"]["image_size_y"]
 
 
 def objects_filter(data):
-    environment_objects = data["environment_objects"]
+    # environment_objects = data["environment_objects"]
     agents_data = data["agents_data"]
     actors = data["actors"]
     actors = [x for x in actors if x.type_id.find("vehicle") != -1 or x.type_id.find("walker") != -1]
@@ -47,14 +47,14 @@ def objects_filter(data):
         image = rgb_image.copy()
         depth_data = sensors_data[1]
 
-        data["agents_data"][agent]["visible_environment_objects"] = []
-        for obj in environment_objects:
-            custom_datapoint, kitti_datapoint, carla_datapoint = is_visible_by_bbox(agent, obj, image, depth_data, intrinsic, extrinsic, 0)
-            if kitti_datapoint is not None:
-                data["agents_data"][agent]["visible_environment_objects"].append(obj)
-                kitti_datapoints.append(kitti_datapoint)
-                carla_datapoints.append(carla_datapoint)
-                custom_datapoints.append(custom_datapoint)
+        # data["agents_data"][agent]["visible_environment_objects"] = []
+        # for obj in environment_objects:
+        #     custom_datapoint, kitti_datapoint, carla_datapoint = is_visible_by_bbox(agent, obj, image, depth_data, intrinsic, extrinsic, 0)
+        #     if kitti_datapoint is not None:
+        #         data["agents_data"][agent]["visible_environment_objects"].append(obj)
+        #         kitti_datapoints.append(kitti_datapoint)
+        #         carla_datapoints.append(carla_datapoint)
+        #         custom_datapoints.append(custom_datapoint)
 
         data["agents_data"][agent]["visible_actors"] = []
 
@@ -317,12 +317,12 @@ def proj_to_2d(camera_pos_vector, intrinsic_mat):
 
 
 def filter_by_distance(data_dict, dis):
-    environment_objects = data_dict["environment_objects"]
+    # environment_objects = data_dict["environment_objects"]
     actors = data_dict["actors"]
     for agent,_ in data_dict["agents_data"].items():
-        data_dict["environment_objects"] = [obj for obj in environment_objects if
-                                            distance_between_locations(obj.transform.location, agent.get_location())
-                                            <dis]
+        # data_dict["environment_objects"] = [obj for obj in environment_objects if
+        #                                     distance_between_locations(obj.transform.location, agent.get_location())
+        #                                     <dis]
         data_dict["actors"] = [act for act in actors if
                                             distance_between_locations(act.get_location(), agent.get_location())<dis]
 

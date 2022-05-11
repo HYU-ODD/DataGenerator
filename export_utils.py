@@ -8,6 +8,7 @@ from PIL import Image
 import os
 import logging
 import math
+from carla import ColorConverter as cc
 
 
 def save_ref_files(OUTPUT_FOLDER, id):
@@ -19,9 +20,9 @@ def save_ref_files(OUTPUT_FOLDER, id):
         logging.info("Wrote reference files to %s", path)
 
 
-def save_image_data(filename, image):
+def save_image_data(filename, image, conv=cc.Raw):
     logging.info("Wrote image data to %s", filename)
-    image.save_to_disk(filename)
+    image.save_to_disk(filename,conv)
 
 def save_bbox_image_data(filename, image):
     im = Image.fromarray(image)

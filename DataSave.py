@@ -1,5 +1,6 @@
 from config import config_to_trans
 from export_utils import *
+from carla import ColorConverter as cc
 
 class DataSave:
     def __init__(self, cfg):
@@ -78,5 +79,5 @@ class DataSave:
             save_calibration_matrices([camera_transform, lidar_transform], calib_filename, dt["intrinsic"])
             save_lidar_data(lidar_fname, dt["sensor_data"][2])
 
-            save_image_data(depth_fname, dt["sensor_data"][1])
+            save_image_data(depth_fname, dt["sensor_data"][1], cc.LogarithmicDepth)
         self.captured_frame_no += 1
