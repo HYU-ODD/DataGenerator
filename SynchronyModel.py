@@ -32,7 +32,7 @@ class SynchronyModel:
         self.init_settings = None
         self.frame = None
         self.actors = {"non_agents": [], "walkers": [], "agents": [], "sensors": {}}
-        self.data = {"sensor_data": {}, "environment_data": None}  # 记录每一帧的数据
+        self.data = {"sensor_data": {}, "environment_data": None}  # 각 프레임의 데이터를 기록
         self.vehicle = None
 
     def set_synchrony(self):

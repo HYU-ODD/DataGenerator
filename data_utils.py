@@ -174,9 +174,9 @@ def bbox_2d_from_agent(intrinsic_mat, extrinsic_mat, obj_bbox, obj_transform, ob
         box_rotation = obj_bbox.rotation
         bbox_transform = carla.Transform(box_location, box_rotation)
         bbox = transform_points(bbox_transform, bbox)
-    # 获取bbox在世界坐标系下的点的坐标
+    # 세계 좌표계에서 bbox의 점 좌표를 얻습니다.
     bbox = transform_points(obj_transform, bbox)
-    # 将世界坐标系下的bbox八个点转换到二维图片中
+    # 세계 좌표계에서 bbox의 8개 점을 2차원 이미지로 변환
     vertices_pos2d = vertices_to_2d_coords(bbox, intrinsic_mat, extrinsic_mat)
     return vertices_pos2d
 
@@ -196,7 +196,7 @@ def vertices_from_extension(ext):
 
 
 def transform_points(transform, points):
-    """ 作用：将三维点坐标转换到指定坐标系下 """
+    """ 자신을 원점으로 하는 8점의 좌표 """
     # 转置
     points = points.transpose()
     # [[X0..,Xn],[Y0..,Yn],[Z0..,Zn],[1,..1]]  (4,8)
@@ -208,25 +208,25 @@ def transform_points(transform, points):
 
 
 def vertices_to_2d_coords(bbox, intrinsic_mat, extrinsic_mat):
-    """将bbox在世界坐标系中的点投影到该相机获取二维图片的坐标和点的深度"""
+    """세계 좌표계에서 bbox의 점을 카메라에 투영하여 2차원 그림의 좌표와 점의 깊이를 얻습니다."""
     vertices_pos2d = []
     for vertex in bbox:
-        # 获取点在world坐标系中的向量
+        # 세계 좌표계에서 점의 벡터를 얻습니다.
         pos_vector = vertex_to_world_vector(vertex)
-        # 将点的world坐标转换到相机坐标系中
+        # 점의 세계 좌표를 카메라 좌표계로 변환
         transformed_3d_pos = proj_to_camera(pos_vector, extrinsic_mat)
-        # 将点的相机坐标转换为二维图片的坐标
+        # 점의 카메라 좌표를 2D 이미지의 좌표로 변환
         pos2d = proj_to_2d(transformed_3d_pos, intrinsic_mat)
-        # 点实际的深度
+        # 포인트 실제 깊이
         vertex_depth = pos2d[2]
-        # 点在图片中的坐标
+        # 이미지에서 점의 좌표
         x_2d, y_2d = pos2d[0], pos2d[1]
         vertices_pos2d.append((y_2d, x_2d, vertex_depth))
     return vertices_pos2d
 
 
 def vertex_to_world_vector(vertex):
-    """ 以carla世界向量（X，Y，Z，1）返回顶点的坐标 （4,1）"""
+    """ 칼라 월드 벡터의 정점 좌표를 반환합니다. (X, Y, Z, 1) (4,1)"""
     return np.array([
         [vertex[0, 0]],  # [[X,
         [vertex[0, 1]],  # Y,
@@ -236,12 +236,12 @@ def vertex_to_world_vector(vertex):
 
 
 def calculate_occlusion_stats(vertices_pos2d, depth_image):
-    """ 作用：筛选bbox八个顶点中实际可见的点 """
+    """ 기능: bbox 의 8개 꼭짓점에서 실제 보이는 점을 필터링합니다."""
     num_visible_vertices = 0
     num_vertices_outside_camera = 0
 
     for y_2d, x_2d, vertex_depth in vertices_pos2d:
-        # 点在可见范围中，并且没有超出图片范围
+        # 포인트는 가시 범위에 있으며 이미지 범위를 초과하지 않습니다.
         if MAX_RENDER_DEPTH_IN_METERS > vertex_depth > 0 and point_in_canvas((y_2d, x_2d)):
             is_occluded = point_is_occluded(
                 (y_2d, x_2d), vertex_depth, depth_image)
@@ -265,17 +265,17 @@ def point_is_occluded(point, vertex_depth, depth_image):
     is_occluded = []
     for dy, dx in neigbours:
         if point_in_canvas((dy + y, dx + x)):
-            # 判断点到图像的距离是否大于深对应深度图像的深度值
+            # 점에서 영상까지의 거리가 깊이 영상에 해당하는 깊이의 깊이 값보다 큰지 판단
             if depth_image[y + dy, x + dx] < vertex_depth:
                 is_occluded.append(True)
             else:
                 is_occluded.append(False)
-    # 当四个邻居点都大于深度图像值时，点被遮挡。返回true
+    # 4개의 인접 포인트가 모두 깊이 이미지 값보다 크면 포인트가 가려집니다. true를 반환
     return all(is_occluded)
 
 
 def midpoint_from_agent_location(location, extrinsic_mat):
-    """ 将agent在世界坐标系中的中心点转换到相机坐标系下 """
+    """ 월드 좌표계에서 에이전트의 중심점을 카메라 좌표계로 변환 """
     midpoint_vector = np.array([
         [location.x],  # [[X,
         [location.y],  # Y,
@@ -296,14 +296,14 @@ def camera_intrinsic(width, height):
 
 
 def proj_to_camera(pos_vector, extrinsic_mat):
-    """ 作用：将点的world坐标转换到相机坐标系中 """
+    """ 기능: 점의 세계 좌표를 카메라 좌표계 로 변환합니다."""
     # inv求逆矩阵
     transformed_3d_pos = np.dot(inv(extrinsic_mat), pos_vector)
     return transformed_3d_pos
 
 
 def proj_to_2d(camera_pos_vector, intrinsic_mat):
-    """将相机坐标系下的点的3d坐标投影到图片上"""
+    """카메라 좌표계에서 점의 3D 좌표를 이미지에 투영"""
     cords_x_y_z = camera_pos_vector[:3, :]
     cords_y_minus_z_x = np.concatenate([cords_x_y_z[1, :], -cords_x_y_z[2, :], cords_x_y_z[0, :]])
     pos2d = np.dot(intrinsic_mat, cords_y_minus_z_x)
@@ -317,12 +317,8 @@ def proj_to_2d(camera_pos_vector, intrinsic_mat):
 
 
 def filter_by_distance(data_dict, dis):
-    # environment_objects = data_dict["environment_objects"]
     actors = data_dict["actors"]
     for agent,_ in data_dict["agents_data"].items():
-        # data_dict["environment_objects"] = [obj for obj in environment_objects if
-        #                                     distance_between_locations(obj.transform.location, agent.get_location())
-        #                                     <dis]
         data_dict["actors"] = [act for act in actors if
                                             distance_between_locations(act.get_location(), agent.get_location())<dis]
 
@@ -331,12 +327,12 @@ def distance_between_locations(location1, location2):
     return math.sqrt(pow(location1.x-location2.x, 2)+pow(location1.y-location2.y, 2))
 
 def calc_projected_2d_bbox(vertices_pos2d):
-    """ 根据八个顶点的图片坐标，计算二维bbox的左上和右下的坐标值 """
+    """ 8개의 꼭짓점의 이미지 좌표를 기반으로 2차원 bbox의 왼쪽 위 좌표와 오른쪽 아래 좌표를 계산합니다. """
     legal_pos2d = list(filter(lambda x: x is not None, vertices_pos2d))
     y_coords, x_coords = [int(x[0][0]) for x in legal_pos2d], [
         int(x[1][0]) for x in legal_pos2d]
     min_x, max_x = min(x_coords), max(x_coords)
-    min_y, max_y = min(y_coords), max(y_coords)
+    min_y, max_y = min(y_coorsds), max(y_coords)
     return [min_x, min_y, max_x, max_y]
 
 def degrees_to_radians(degrees):

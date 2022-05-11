@@ -5,9 +5,15 @@ import shutil
 
 # config
 rootdir = '/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/'
-data_dirs = ['data7/', 'data8/']
+data_dirs = ['data10/']
 save_dir = rootdir + 'converted/'
+padding = 10
+mx = [1080-1, 720-1]
+occlusion = {'0':'1.0', '1':'0.7', '2':'0.0'}
 
+# bb-sizeup
+def sizeup(lst, padding, mx):
+    return max(0,int(lst[0])-padding), max(0,int(lst[1])-padding), min(mx[0],int(lst[2])+padding), min(mx[1],int(lst[3])+padding)
 
 if __name__ == '__main__':
     file_list = []
@@ -38,9 +44,12 @@ if __name__ == '__main__':
             actor_id = int(splited[0])
             if actor_id == -1: continue
 
-            left, top, right, bot = splited[5:9]
+            left, top, right, bot = sizeup(splited[5:9], padding, mx)
+            occluded = occlusion[splited[3]]
 
-            obj = str(frame) + ',' + str(actor_id) + ',' + left + ',' + top + ',' + right + ',' + bot + ',1,1,1' 
+            if occluded != '1.0': continue
+
+            obj = str(frame) + ',' + str(actor_id) + ',' + str(left) + ',' + str(top) + ',' + str(right) + ',' + str(bot) + ',1,1,1'
             
             gt.write(obj + '\n')
         

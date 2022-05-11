@@ -1,6 +1,6 @@
 def draw_3d_bounding_box(array, vertices_pos2d):
     """
-    在图片上将八个bbox的顶点用线连接起来，绘制3d bbox
+    8개의 bbox의 꼭짓점을 그림의 선으로 연결하여 3d bbox를 그립니다.
     """
     # Shows which verticies that are connected so that we can draw lines between them
     # The key of the dictionary is the index in the bbox array, and the corresponding value is a list of indices

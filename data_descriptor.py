@@ -23,7 +23,7 @@ from math import pi
 
 class KittiDescriptor:
     """
-    Kitti格式的label类
+    Kitti 형식의 레이블 클래스
     """
     def __init__(self, type=None, bbox=None, dimensions=None, location=None, rotation_y=None, extent=None):
         self.type = type
@@ -73,7 +73,7 @@ class KittiDescriptor:
 
     def set_3d_object_location(self, obj_location):
         """
-            将carla相机内目标中心点坐标转换为kitti格式的中心点坐标
+            칼라 카메라에서 대상의 중심점 좌표를 키티 형식의 중심점 좌표로 변환
             carla x y z
             kitti z x -y
             z
@@ -212,7 +212,7 @@ class CustomDescriptor:
 
     def set_3d_object_location(self, obj_location):
         """
-            将carla相机内目标中心点坐标转换为kitti格式的中心点坐标
+            칼라 카메라에서 대상의 중심점 좌표를 키티 형식의 중심점 좌표로 변환
             carla x y z
             kitti z x -y
             z

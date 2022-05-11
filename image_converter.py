@@ -3,7 +3,7 @@ import numpy as np
 
 def depth_to_array(image):
     """
-    作用： 将carla获取的raw depth_image转换成深度图
+    기능: carla가 얻은 원시 depth_image를 깊이 맵으로 변환합니다.
     """
     array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
     array = np.reshape(array, (image.height, image.width, 4))  # RGBA format

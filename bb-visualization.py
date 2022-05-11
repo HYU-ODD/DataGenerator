@@ -1,12 +1,16 @@
 # -- coding: utf-8 --
+from pickle import NONE
 import cv2
 import os
+import argparse
 
-kitti_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/data8custom/"
-img_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/data8/training/image/"
-result_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/test/result/"
+kitti_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/data10/training/custom/"
+img_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/data10/training/image/"
+mot_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/converted/"
+result_dir = "/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/vis/"
+mode = 'MOT' # 'KITTI' if you want to convert the origin gt files
 
-if __name__ == '__main__':
+def kitti_converter():
     kitti_lst = []
     frame_idx = 0
 
@@ -44,3 +48,44 @@ if __name__ == '__main__':
                 cv2.rectangle(img, (x1,y1), (x2,y2), (0,255,0), 1)
         
         cv2.imwrite(result_filename, img)
+
+
+def mot_converter():
+    mot_lst = []
+    frame_idx = -1
+    result_filename = None
+    img = None
+
+    if not os.path.exists(result_dir):
+        os.makedirs(result_dir)
+
+    with open(mot_dir + 'gt.txt', 'r') as gt:
+        while True:
+            line = gt.readline()
+            if line == '\n' or line is None: break
+            splited = line.split(',')
+            if len(splited) < 9: break
+            
+            frame = int(splited[0])
+            
+            actor_id = int(splited[1])
+            x1, y1, x2, y2 = int(splited[2]), int(splited[3]), int(splited[4]), int(splited[5])
+        
+            if frame_idx != frame:
+                if img is not None:
+                    cv2.imwrite(result_filename, img)
+                img = cv2.imread(mot_dir + '{0:06d}.png'.format(frame), cv2.IMREAD_COLOR)
+                frame_idx = frame
+                result_filename = result_dir + '{0:06d}.png'.format(frame)
+            
+            cv2.rectangle(img, (x1,y1), (x2,y2), (0,255,0), 1)
+        
+        if img is not None:
+            cv2.imwrite(result_filename, img)
+
+
+if __name__ == '__main__':
+    if mode == 'KITTI':
+        kitti_converter()
+    else:
+        mot_converter()

@@ -16,7 +16,7 @@ class DataSave:
 
 
     def _generate_path(self,root_path):
-        """ 生成数据存储的路径"""
+        """ 데이터 저장소 경로 생성"""
         PHASE = "training"
         self.OUTPUT_FOLDER = os.path.join(root_path, PHASE)
         folders = ['calib', 'image', 'kitti_label', 'carla_label', 'velodyne', 'custom', 'depth']
@@ -36,11 +36,11 @@ class DataSave:
 
 
     def _current_captured_frame_num(self):
-        """获取文件夹中存在的数据量"""
+        """폴더의 데이터 양 가져오기"""
         label_path = os.path.join(self.OUTPUT_FOLDER, 'kitti_label/')
         num_existing_data_files = len(
             [name for name in os.listdir(label_path) if name.endswith('.txt')])
-        print("当前存在{}个数据".format(num_existing_data_files))
+        print("현재 {} 데이터가 있습니다".format(num_existing_data_files))
         if num_existing_data_files == 0:
             return 0
         answer = input(
