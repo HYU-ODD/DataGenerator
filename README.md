@@ -8,7 +8,7 @@ Based on CARLA Simulator, generate KITTI 2D/3D simulated dataset in target detec
 
 **Data Collection Flow**
 
-![image](https://user-images.githubusercontent.com/55339200/138204862-d4863c85-418b-4e4a-8db8-9efc7029635c.png)
+![image](info_img/flowchart.png)
 
 
 
