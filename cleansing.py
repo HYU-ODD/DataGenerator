@@ -21,10 +21,10 @@ shift+W: increase the size upward
 shift+D: increase the size down
 shift+A: increase the size left
 shift+D: increase the size right
-Alt+W: decrease the size down
-Alt+S: decrease the size upward
-Alt+A: decrease the size right
-Alt+D: decrease the size left
+I: decrease the size down
+K: decrease the size upward
+J: decrease the size right
+L: decrease the size left
 '''
 ''' Option
 --start: select starting frame number
@@ -45,11 +45,15 @@ if __name__ == '__main__':
     argparser.add_argument(
         '--start',
         default=0, type=int)
+    argparser.add_argument(
+        '--gt_file',
+        default='gt.txt'
+    )
     args = argparser.parse_args()
     
     new_gt = []
     start_frame_idx = 0
-    with open(gt_dir+"gt.txt", 'r') as label:
+    with open(gt_dir + args.gt_file, 'r') as label:
         frame = -1
         while True:
             line = label.readline()
@@ -83,21 +87,23 @@ if __name__ == '__main__':
         idx = -1
         while True:
             cv2.imshow("result", src)
-            key = cv2.waitKeyEx()
+            key = cv2.waitKeyEx() & 0xFF
+            print(key)
 
-            if key == 0x270000 or key == 1113939 or key == 65363: # -> 방향키
+            if key == 83: # -> 방향키
                 cnt += 1
                 break
             
-            elif key == 27 or key == 1048603: # esc
+            elif key == 27: # esc
                 finish = 1
                 break
             
-            elif key == 0x250000 or key == 1113937 or key == 65361: # <- 방향키
+            elif key == 81: # <- 방향키
                 cnt -= 1
                 break
             
-            elif (key == 32 or key == 1048608) and len(gt) > 0: # -> spacebar
+            elif key == 32 and len(gt) > 0: # -> spacebar
+                idx = idx % len(gt)
                 if idx != -1:
                     x, y = int(gt[idx][2]), int(gt[idx][3])
                     w, h = int(gt[idx][4]), int(gt[idx][5])
@@ -107,33 +113,33 @@ if __name__ == '__main__':
                 w, h = int(gt[idx][4]), int(gt[idx][5])
                 cv2.rectangle(src, (x,y), (x+w, y+h), (0,0,255), 2)
                 
-            elif (key == 8 or key==1113864) and idx != -1 and len(gt) > 0: # backspace
+            elif key == 8 and idx != -1 and len(gt) > 0: # backspace
                 cache_gt.append(gt[idx])
                 gt.remove(gt[idx])
                 src = org.copy()
                 draw_bb(src, gt, frame)
             
-            elif (key == ord('d') or key == 1048676) and idx != -1:
+            elif key == ord('d') and idx != -1:
                 gt[idx][2] = str(int(gt[idx][2]) + 2)
                 src = org.copy()
                 draw_bb(src, gt, frame)
                 
-            elif (key == ord('a') or key==1048673 ) and idx != -1:
+            elif key == ord('a') and idx != -1:
                 gt[idx][2] = str(int(gt[idx][2]) - 2)
                 src = org.copy()
                 draw_bb(src, gt, frame)
                 
-            elif (key == ord('w') or key == 1048695) and idx != -1:
+            elif key == ord('w') and idx != -1:
                 gt[idx][3] = str(int(gt[idx][3]) - 2)
                 src = org.copy()
                 draw_bb(src, gt, frame)
             
-            elif (key == ord('s') or key == 1048691) and idx != -1:
+            elif key == ord('s') and idx != -1:
                 gt[idx][3] = str(int(gt[idx][3]) + 2)
                 src = org.copy()
                 draw_bb(src, gt, frame)
                     
-            elif (key == 26 or key == 1310842) and len(cache_gt) > 0: # ctrl+z
+            elif (key == 26 or key == 122) and len(cache_gt) > 0: # ctrl+z or z
                 label = cache_gt.pop()
                 gt.append(label)
                 x, y = int(label[2]), int(label[3])
@@ -141,7 +147,7 @@ if __name__ == '__main__':
                 cv2.putText(src, label[1], (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
                 cv2.rectangle(src, (x,y), (x+w, y+h), (0,255,0), 2)
 
-            elif (key == ord('n') or key == 1048686):
+            elif key == ord('n'):
                 id = int(input('new object id: '))
                 gt.append([str(frame), str(id), '100', '100', '50', '50', '1','1','1\n'])
                 x, y = int(gt[-1][2]), int(gt[-1][3])
@@ -149,7 +155,7 @@ if __name__ == '__main__':
                 cv2.putText(src, str(id), (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
                 cv2.rectangle(src, (x,y), (x+w, y+h), (0,255,0), 2)
 
-            elif key == 13 or key == 1048589 : # enter
+            elif key == 13: # enter
                 with open(gt_dir+"new_gt.txt", 'w') as f:
                     for new_label in new_gt:
                         for obj in new_label:
@@ -159,40 +165,40 @@ if __name__ == '__main__':
                                     f.write(',')
                 print("Saved")
 
-            elif key == 1114199: # shift + w
+            elif key == 87: # shift + w
                 gt[idx][5] = str(int(gt[idx][5]) + 2) # height
                 gt[idx][3] = str(int(gt[idx][3]) - 2) # top
                 src = org.copy()
                 draw_bb(src, gt, frame)
-            elif key == 1114195: # shift + s
+            elif key == 83: # shift + s
                 gt[idx][5] = str(int(gt[idx][5]) + 2) # height
                 src = org.copy()
                 draw_bb(src, gt, frame)
-            elif key == 1114177: # shift + a
+            elif key == 65: # shift + a
                 gt[idx][4] = str(int(gt[idx][4]) + 2) # width
                 gt[idx][2] = str(int(gt[idx][2]) - 2) # left
                 src = org.copy()
                 draw_bb(src, gt, frame)
-            elif key == 1114180: # shift + d
+            elif key == 68: # shift + d
                 gt[idx][4] = str(int(gt[idx][4]) + 2) # width
                 src = org.copy()
                 draw_bb(src, gt, frame)
 
-            elif key == 1572983: # alt + w
+            elif key == ord('i'):
                 gt[idx][5] = str(int(gt[idx][5]) - 2) # height
                 gt[idx][3] = str(int(gt[idx][3]) + 2) # top
                 src = org.copy()
                 draw_bb(src, gt, frame)
-            elif key == 1572979: # alt + s
+            elif key == ord('k'):
                 gt[idx][5] = str(int(gt[idx][5]) - 2) # height
                 src = org.copy()
                 draw_bb(src, gt, frame)
-            elif key == 1572961: # alt + a
+            elif key == ord('j'):
                 gt[idx][4] = str(int(gt[idx][4]) - 2) # width
                 gt[idx][2] = str(int(gt[idx][2]) + 2) # left
                 src = org.copy()
                 draw_bb(src, gt, frame)
-            elif key == 1572964: # alt + d
+            elif key == ord('l'):
                 gt[idx][4] = str(int(gt[idx][4]) - 2) # width
                 src = org.copy()
                 draw_bb(src, gt, frame)
