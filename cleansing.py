@@ -16,6 +16,7 @@ A: move the selected bounding box to the left
 D: move the selected bounding box to the right
 W: move the selected bounding box up
 S: move the selected bounding box down
+N: create a new bounding box with the input ID
 shift+W: increase the size upward
 shift+D: increase the size down
 shift+A: increase the size left
@@ -137,8 +138,17 @@ if __name__ == '__main__':
                 gt.append(label)
                 x, y = int(label[2]), int(label[3])
                 w, h = int(label[4]), int(label[5])
+                cv2.putText(src, label[1], (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
                 cv2.rectangle(src, (x,y), (x+w, y+h), (0,255,0), 2)
-                
+
+            elif (key == ord('n') or key == 1048686):
+                id = int(input('new object id: '))
+                gt.append([str(frame), str(id), '100', '100', '50', '50', '1','1','1\n'])
+                x, y = int(gt[-1][2]), int(gt[-1][3])
+                w, h = int(gt[-1][4]), int(gt[-1][5])
+                cv2.putText(src, str(id), (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
+                cv2.rectangle(src, (x,y), (x+w, y+h), (0,255,0), 2)
+
             elif key == 13 or key == 1048589 : # enter
                 with open(gt_dir+"new_gt.txt", 'w') as f:
                     for new_label in new_gt:
