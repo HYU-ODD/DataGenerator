@@ -5,7 +5,7 @@ import shutil
 
 # config
 rootdir = '/home/adriv/Carla/CARLA_0.9.13/PythonAPI/DataGenerator/'
-data_dirs = ['data10/']
+data_dirs = ['data9/']
 save_dir = rootdir + 'converted/'
 padding = 10
 mx = [1080-1, 720-1]
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     file_list = []
 
     for dir in data_dirs:
-        path = rootdir + dir + 'training/custom/'
+        path = rootdir + 'data/' + dir + 'training/custom/'
         f = os.listdir(path)
 
         for file in f:
@@ -45,17 +45,19 @@ if __name__ == '__main__':
             if actor_id == -1: continue
 
             left, top, right, bot = sizeup(splited[5:9], padding, mx)
+            width = right - left
+            height = bot - top
             occluded = occlusion[splited[3]]
 
             if occluded != '1.0': continue
 
-            obj = str(frame) + ',' + str(actor_id) + ',' + str(left) + ',' + str(top) + ',' + str(right) + ',' + str(bot) + ',1,1,1'
+            obj = str(frame) + ',' + str(actor_id) + ',' + str(left) + ',' + str(top) + ',' + str(width) + ',' + str(height) + ',1,1,1'
             
             gt.write(obj + '\n')
         
         img_path = label_path.split('custom/')
         img_path = img_path[0] + 'image/' + img_path[1].split('.')[0] + '.png'
-        shutil.copyfile(img_path, save_dir + '{0:06d}.png'.format(frame))
+        #shutil.copyfile(img_path, save_dir + '{0:06d}.png'.format(frame))
         
         label.close()
         frame += 1
