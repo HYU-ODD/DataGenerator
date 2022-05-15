@@ -16,6 +16,14 @@ A: move the selected bounding box to the left
 D: move the selected bounding box to the right
 W: move the selected bounding box up
 S: move the selected bounding box down
+shift+W: increase the size upward
+shift+D: increase the size down
+shift+A: increase the size left
+shift+D: increase the size right
+Alt+W: decrease the size down
+Alt+S: decrease the size upward
+Alt+A: decrease the size right
+Alt+D: decrease the size left
 '''
 ''' Option
 --start: select starting frame number
@@ -26,6 +34,8 @@ def draw_bb(img, gt, frame):
     for label in gt:
         x, y = int(label[2]), int(label[3])
         w, h = int(label[4]), int(label[5])
+        id = label[1]
+        cv2.putText(img, id, (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
         cv2.rectangle(img, (x,y), (x+w, y+h), (0,255,0), 2)
 
 if __name__ == '__main__':
@@ -64,6 +74,8 @@ if __name__ == '__main__':
         else: frame = int(cache_gt[0][0])
         
         org = cv2.imread(gt_dir+"image/{0:06d}.png".format(frame), cv2.IMREAD_COLOR)
+        if org is None:
+            print("Can't open" + gt_dir + "image/{0:06d}.jpg".format(frame))
         src = org.copy()
         draw_bb(src, gt, frame)
         
@@ -71,12 +83,12 @@ if __name__ == '__main__':
         while True:
             cv2.imshow("result", src)
             key = cv2.waitKeyEx()
-            print(key)
+
             if key == 0x270000 or key == 1113939 or key == 65363: # -> 방향키
                 cnt += 1
                 break
             
-            elif key == 27: # esc
+            elif key == 27 or key == 1048603: # esc
                 finish = 1
                 break
             
@@ -120,7 +132,7 @@ if __name__ == '__main__':
                 src = org.copy()
                 draw_bb(src, gt, frame)
                     
-            elif key == 26 and len(cache_gt) > 0: # ctrl+z
+            elif (key == 26 or key == 1310842) and len(cache_gt) > 0: # ctrl+z
                 label = cache_gt.pop()
                 gt.append(label)
                 x, y = int(label[2]), int(label[3])
@@ -136,6 +148,44 @@ if __name__ == '__main__':
                                 if i+1 < len(obj):
                                     f.write(',')
                 print("Saved")
+
+            elif key == 1114199: # shift + w
+                gt[idx][5] = str(int(gt[idx][5]) + 2) # height
+                gt[idx][3] = str(int(gt[idx][3]) - 2) # top
+                src = org.copy()
+                draw_bb(src, gt, frame)
+            elif key == 1114195: # shift + s
+                gt[idx][5] = str(int(gt[idx][5]) + 2) # height
+                src = org.copy()
+                draw_bb(src, gt, frame)
+            elif key == 1114177: # shift + a
+                gt[idx][4] = str(int(gt[idx][4]) + 2) # width
+                gt[idx][2] = str(int(gt[idx][2]) - 2) # left
+                src = org.copy()
+                draw_bb(src, gt, frame)
+            elif key == 1114180: # shift + d
+                gt[idx][4] = str(int(gt[idx][4]) + 2) # width
+                src = org.copy()
+                draw_bb(src, gt, frame)
+
+            elif key == 1572983: # alt + w
+                gt[idx][5] = str(int(gt[idx][5]) - 2) # height
+                gt[idx][3] = str(int(gt[idx][3]) + 2) # top
+                src = org.copy()
+                draw_bb(src, gt, frame)
+            elif key == 1572979: # alt + s
+                gt[idx][5] = str(int(gt[idx][5]) - 2) # height
+                src = org.copy()
+                draw_bb(src, gt, frame)
+            elif key == 1572961: # alt + a
+                gt[idx][4] = str(int(gt[idx][4]) - 2) # width
+                gt[idx][2] = str(int(gt[idx][2]) + 2) # left
+                src = org.copy()
+                draw_bb(src, gt, frame)
+            elif key == 1572964: # alt + d
+                gt[idx][4] = str(int(gt[idx][4]) - 2) # width
+                src = org.copy()
+                draw_bb(src, gt, frame)
         if finish: break
         
     if not finish:
