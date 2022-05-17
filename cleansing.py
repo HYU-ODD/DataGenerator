@@ -30,6 +30,13 @@ L: decrease the size left
 --start: select starting frame number
 '''
 
+def mouse_callback(event, x, y, flags, param):
+    global mouse_y
+    global mouse_x
+    mouse_y = y
+    mouse_x = x
+
+
 def draw_bb(img, gt, frame):
     cv2.putText(img, str(frame), (10, 40), cv2.FONT_HERSHEY_COMPLEX, 1, (255,0,0), 2)
     for label in gt:
@@ -38,6 +45,7 @@ def draw_bb(img, gt, frame):
         id = label[1]
         cv2.putText(img, id, (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
         cv2.rectangle(img, (x,y), (x+w, y+h), (0,255,0), 2)
+
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(
@@ -85,12 +93,13 @@ if __name__ == '__main__':
         draw_bb(src, gt, frame)
         
         idx = -1
+
         while True:
             cv2.imshow("result", src)
-            key = cv2.waitKeyEx() & 0xFF
-            print(key)
+            key = cv2.waitKeyEx() & 0xFFF
+            cv2.setMouseCallback("result", mouse_callback)
 
-            if key == 83: # -> 방향키
+            if key == 3923: # -> 방향키
                 cnt += 1
                 break
             
@@ -98,7 +107,7 @@ if __name__ == '__main__':
                 finish = 1
                 break
             
-            elif key == 81: # <- 방향키
+            elif key == 3921: # <- 방향키
                 cnt -= 1
                 break
             
@@ -113,7 +122,7 @@ if __name__ == '__main__':
                 w, h = int(gt[idx][4]), int(gt[idx][5])
                 cv2.rectangle(src, (x,y), (x+w, y+h), (0,0,255), 2)
                 
-            elif key == 8 and idx != -1 and len(gt) > 0: # backspace
+            elif key == 3848 and idx != -1 and len(gt) > 0: # backspace
                 cache_gt.append(gt[idx])
                 gt.remove(gt[idx])
                 src = org.copy()
@@ -148,12 +157,14 @@ if __name__ == '__main__':
                 cv2.rectangle(src, (x,y), (x+w, y+h), (0,255,0), 2)
 
             elif key == ord('n'):
+                cv2.rectangle(src, (mouse_x,mouse_y), (mouse_x+50,mouse_y+50), (0,255,0), 2)
+                cv2.imshow("result",src)
+                cv2.waitKeyEx(1)
                 id = int(input('new object id: '))
-                gt.append([str(frame), str(id), '100', '100', '50', '50', '1','1','1\n'])
+                gt.append([str(frame), str(id), str(mouse_x), str(mouse_y), '50', '50', '1','1','1\n'])
                 x, y = int(gt[-1][2]), int(gt[-1][3])
                 w, h = int(gt[-1][4]), int(gt[-1][5])
                 cv2.putText(src, str(id), (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,0,255), 2)
-                cv2.rectangle(src, (x,y), (x+w, y+h), (0,255,0), 2)
 
             elif key == 13: # enter
                 with open(gt_dir+"new_gt.txt", 'w') as f:
